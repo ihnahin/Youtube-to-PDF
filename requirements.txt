@@ -1,0 +1,6 @@
+flask>=3.0
+youtube-transcript-api>=1.0
+deep-translator>=1.11
+# --- AI Subtitle (Subtitle না থাকলে / নিজের File থেকে) ---
+faster-whisper>=1.0
+yt-dlp

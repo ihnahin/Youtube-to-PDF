@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<!--
+  SubtitlePro — YouTube / Audio / Video → Subtitle + Bangla Translation
+  Designed & Developed by Md Ismail Hossain Nahin
+-->
+<html lang="bn" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c14">
+<meta name="author" content="Md Ismail Hossain Nahin">
+<meta name="description" content="YouTube ভিডিও বা অডিও/ভিডিও ফাইল থেকে Subtitle তৈরি, বাংলা অনুবাদ এবং PDF / SRT / VTT Download — Designed & Developed by Md Ismail Hossain Nahin">
+<title>SubtitlePro — Subtitle Generator &amp; Bangla Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ════════════ TOKENS ════════════ */
+:root{
+  --bg:#0a0c14; --bg2:#10131f; --bg3:#161a2a;
+  --card:rgba(255,255,255,.055); --card-b:rgba(255,255,255,.11); --card-h:rgba(255,255,255,.09);
+  --ink:#eef0f8; --mute:#8f95ab; --line:rgba(255,255,255,.08);
+  --a1:#ff4d6d; --a2:#7c5cff; --a3:#22d3ee; --ok:#34d399; --err:#fb7185; --warn:#fbbf24;
+  --grad:linear-gradient(135deg,var(--a1),var(--a2));
+  --grad2:linear-gradient(135deg,var(--a2),var(--a3));
+  --r:18px; --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+  --fs:1;
+}
+[data-theme="light"]{
+  --bg:#f3f4fb; --bg2:#ffffff; --bg3:#eceef8;
+  --card:rgba(255,255,255,.82); --card-b:rgba(24,28,60,.09); --card-h:rgba(124,92,255,.07);
+  --ink:#171a2b; --mute:#656b8a; --line:rgba(24,28,60,.08);
+  --shadow:0 20px 50px -28px rgba(50,50,120,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans Bengali','Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);
+  line-height:1.65;min-height:100vh;min-height:100dvh;overflow-x:hidden;transition:background .3s,color .3s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--a3);outline-offset:2px}
+::selection{background:rgba(124,92,255,.4)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--card-b);border-radius:9px}
+
+/* ════════════ BACKGROUND ════════════ */
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;border-radius:50%;filter:blur(95px);opacity:.34;animation:float 18s ease-in-out infinite}
+.bg i:nth-child(1){width:400px;height:400px;background:var(--a1);top:-130px;left:-90px}
+.bg i:nth-child(2){width:440px;height:440px;background:var(--a2);top:26%;right:-150px;animation-delay:-6s}
+.bg i:nth-child(3){width:340px;height:340px;background:var(--a3);bottom:-110px;left:22%;animation-delay:-11s;opacity:.2}
+.bg::after{content:"";position:absolute;inset:0;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:26px 26px;opacity:.55;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 20%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse at 50% 20%,#000 20%,transparent 75%)}
+[data-theme="light"] .bg i{opacity:.17}
+@keyframes float{50%{transform:translate(40px,-36px) scale(1.1)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ════════════ LAYOUT ════════════ */
+.wrap{max-width:1180px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+.glass{background:var(--card);border:1px solid var(--card-b);border-radius:var(--r);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+
+/* nav */
+nav{display:flex;align-items:center;gap:12px;padding:8px 0 20px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px;text-decoration:none;color:inherit}
+.logo b{width:40px;height:40px;border-radius:13px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:16px;box-shadow:0 10px 26px -8px var(--a1)}
+.logo span em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-sp{flex:1}
+.dev-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);font-size:12.5px;color:var(--mute);backdrop-filter:blur(10px)}
+.dev-badge strong{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+.caps{display:flex;gap:6px}
+.cap{font-size:11.5px;padding:4px 10px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);color:var(--mute);white-space:nowrap}
+.cap.on{color:var(--ok);border-color:rgba(52,211,153,.35)} .cap.off{color:var(--warn);border-color:rgba(251,191,36,.35)}
+.icon-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--card-b);background:var(--card);font-size:18px;backdrop-filter:blur(10px);transition:.2s;flex:none}
+.icon-btn:hover{transform:translateY(-2px);background:var(--card-h)}
+
+/* hero */
+.hero{text-align:center;padding:6px 0 26px}
+.pill{display:inline-flex;gap:8px;align-items:center;padding:6px 15px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);font-size:12.5px;color:var(--mute);margin-bottom:16px}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+h1{font-size:clamp(28px,6vw,54px);line-height:1.22;font-weight:800;letter-spacing:-.6px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mute);max-width:620px;margin:14px auto 0;font-size:clamp(14px,2.4vw,16.5px)}
+.feat{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.feat span{font-size:12.5px;padding:5px 12px;border-radius:99px;background:var(--bg3);border:1px solid var(--line);color:var(--mute)}
+
+/* input panel */
+.panel{padding:18px}
+.tabs{display:flex;gap:6px;padding:5px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;width:100%}
+.tabs button{flex:1;height:44px;border:0;border-radius:10px;background:transparent;color:var(--mute);font-weight:600;font-size:14.5px;transition:.2s}
+.tabs button.on{background:var(--grad);color:#fff;box-shadow:0 8px 22px -10px var(--a1)}
+.urlbox{display:flex;gap:10px;flex-wrap:wrap}
+.field{position:relative;flex:1 1 320px}
+.field input{width:100%;height:54px;padding:0 92px 0 46px;border-radius:14px;border:1.5px solid var(--card-b);background:var(--bg2);font-size:15px;outline:none;transition:.2s}
+.field input:focus{border-color:var(--a2);box-shadow:0 0 0 4px rgba(124,92,255,.2)}
+.field .ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:18px}
+.field .paste{position:absolute;right:8px;top:8px;height:38px;padding:0 14px;border-radius:10px;background:var(--card);font-size:13px;font-weight:600;border:1px solid var(--card-b)}
+.field .paste:hover{background:var(--card-h)}
+.btn{height:54px;padding:0 28px;border:0;border-radius:14px;background:var(--grad);color:#fff;font-weight:700;font-size:15.5px;box-shadow:0 14px 30px -12px var(--a1);transition:.2s;display:inline-flex;align-items:center;gap:10px;justify-content:center;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.55;cursor:wait;transform:none}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--card-b);box-shadow:none;height:44px;padding:0 15px;font-size:14px;font-weight:600}
+.btn.ghost:hover{background:var(--card-h)}
+.btn.sm{height:38px;padding:0 13px;font-size:13px;border-radius:11px}
+.btn.alt{background:var(--grad2);box-shadow:0 14px 30px -12px var(--a3)}
+.row2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.row2 label.t{font-size:12.5px;color:var(--mute);font-weight:500}
+.seg{display:inline-flex;padding:4px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;gap:2px}
+.seg button{height:36px;padding:0 14px;border:0;border-radius:9px;background:transparent;color:var(--mute);font-size:13.5px;font-weight:600;transition:.15s;white-space:nowrap}
+.seg button.on{background:var(--card-b);color:var(--ink)}
+.seg.sm button{height:32px;padding:0 11px;font-size:12.5px}
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.opt label{display:block;font-size:12px;color:var(--mute);margin-bottom:5px;font-weight:500}
+.opt select,.sel{width:100%;height:46px;padding:0 12px;border-radius:12px;border:1.5px solid var(--card-b);background:var(--bg2);font-size:14px;outline:none;transition:.2s}
+.opt select:focus,.sel:focus{border-color:var(--a2)}
+.hint{margin-top:12px;padding:11px 14px;border-radius:12px;background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.3);font-size:13px;color:var(--ink)}
+.hint code{font:600 12.5px 'Inter',monospace;background:var(--bg2);padding:2px 8px;border-radius:7px;user-select:all;word-break:break-all}
+.hint.info{background:rgba(34,211,238,.07);border-color:rgba(34,211,238,.28)}
+.status{margin-top:12px;font-size:14px;color:var(--mute);min-height:22px}
+.status.err{color:var(--err)} .status.ok{color:var(--ok)}
+.hist{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.hist small{color:var(--mute);font-size:12px}
+.hist button{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;padding:5px 12px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mute)}
+.hist button:hover{color:var(--ink);border-color:var(--a2)}
+
+/* dropzone */
+.drop{border:2px dashed var(--card-b);border-radius:16px;padding:30px 16px;text-align:center;background:var(--bg2);transition:.2s;cursor:pointer;display:block}
+.drop:hover,.drop.over{border-color:var(--a2);background:rgba(124,92,255,.08)}
+.drop b{font-size:34px;display:block}
+.drop h3{font-size:16px;margin-top:4px}
+.drop p{font-size:13px;color:var(--mute)}
+.drop input{display:none}
+.fileinfo{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:14px}
+.fileinfo span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* how-it-works */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+.step{padding:16px;text-align:center}
+.step b{display:block;font-size:26px;margin-bottom:2px}
+.step h3{font-size:14.5px;font-weight:700} .step p{font-size:12.5px;color:var(--mute);margin-top:2px}
+
+/* progress + error */
+.prog{margin-top:20px;padding:18px;animation:up .4s ease}
+.prog-top{display:flex;align-items:center;gap:14px}
+.prog-top>div:nth-child(2){flex:1;min-width:0}
+.prog-top b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis}
+.prog-top small{color:var(--mute);font-size:12.5px}
+.spin{width:22px;height:22px;border:3px solid var(--card-b);border-top-color:var(--a2);border-radius:50%;animation:sp .7s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.bar{height:10px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:var(--grad);transition:width .5s ease;position:relative;overflow:hidden}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:shine 1.3s infinite}
+@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.prog-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mute);margin-top:6px}
+.errcard{margin-top:20px;padding:18px;display:flex;gap:14px;border-color:rgba(251,113,133,.35);animation:up .4s ease}
+.err-ico{font-size:30px}
+.errcard h3{font-size:16px;color:var(--err)} .errcard p{font-size:14px;color:var(--mute);margin-top:2px;word-break:break-word}
+.err-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ════════════ RESULT ════════════ */
+#out{margin-top:26px;animation:up .5s ease}
+@keyframes up{from{opacity:0;transform:translateY(16px)}}
+.grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:1020px){.grid{grid-template-columns:370px minmax(0,1fr);align-items:start}.side{position:sticky;top:14px}}
+.pcard{padding:12px;overflow:hidden}
+.pbox{border-radius:12px;overflow:hidden;background:#000;aspect-ratio:16/9;position:relative}
+.pbox iframe,.pbox video,.pbox #ytp{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pbox .nofile{display:grid;place-items:center;height:100%;color:#9aa;font-size:14px;text-align:center;padding:10px}
+.pinfo{padding:12px 4px 4px}
+.pinfo h2{font-size:clamp(16px,3vw,18.5px);line-height:1.45;font-weight:700;word-break:break-word}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mute)}
+.chip b{color:var(--ink)}
+.retr{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.retr label{font-size:12px;color:var(--mute);display:block;margin-bottom:5px}
+.retr .line{display:flex;gap:8px}
+.retr .sel{height:40px;flex:1}
+.mini{margin-top:10px}
+.mini .bar{height:7px;margin-top:6px}
+.mini small{font-size:12px;color:var(--mute)}
+
+.toolbar{position:sticky;top:8px;z-index:30;display:flex;gap:8px;flex-wrap:wrap;padding:10px;margin-bottom:14px;align-items:center}
+.search{flex:1 1 190px;position:relative;min-width:150px}
+.search input{width:100%;height:44px;padding:0 14px 0 38px;border-radius:12px;border:1.5px solid var(--card-b);background:var(--bg2);font-size:14px;outline:none}
+.search input:focus{border-color:var(--a2)}
+.search span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px}
+.tb-grp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn.pdf{height:44px;font-size:14px;padding:0 18px}
+.tgl.on{background:rgba(124,92,255,.22);border-color:var(--a2)}
+.menu{position:relative}
+.menu-list{position:absolute;right:0;top:calc(100% + 8px);min-width:250px;padding:8px;border-radius:14px;background:var(--bg2);border:1px solid var(--card-b);box-shadow:var(--shadow);display:none;z-index:50}
+.menu.open .menu-list{display:block}
+.menu-list button{display:flex;width:100%;gap:10px;align-items:center;padding:10px 12px;border:0;background:transparent;border-radius:9px;font-size:14px;text-align:left}
+.menu-list button:hover{background:var(--card-h)}
+.menu-list button small{margin-left:auto;color:var(--mute);font-size:11.5px}
+.menu-list .mrow{padding:8px 12px 6px;border-top:1px solid var(--line);margin-top:6px}
+.menu-list .mrow label{display:block;font-size:11.5px;color:var(--mute);margin-bottom:4px}
+.menu-list .mrow select{height:38px;font-size:13px}
+
+.tbl{overflow:hidden;font-size:calc(15px*var(--fs))}
+.thead,.trow{display:grid;grid-template-columns:82px 1fr 1fr;gap:16px;padding:12px 18px;align-items:start}
+.tbl.single .thead,.tbl.single .trow,.tbl.v-orig .thead,.tbl.v-orig .trow,.tbl.v-trans .thead,.tbl.v-trans .trow{grid-template-columns:82px 1fr}
+.tbl.v-orig .c-tr,.tbl.v-orig #thTr,.tbl.v-trans .c-or,.tbl.v-trans #thOr{display:none}
+.tbl.single .c-tr,.tbl.single #thTr{display:none}
+.thead{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--line);font-weight:600}
+.trow{border-bottom:1px solid var(--line);transition:background .15s;position:relative}
+.trow:last-child{border:0}
+.trow:hover{background:var(--card-h)}
+.trow.active{background:rgba(124,92,255,.16)}
+.trow.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.tbtn{font:600 12.5px 'Inter',monospace;color:var(--a3);background:rgba(34,211,238,.1);padding:4px 11px;border:0;border-radius:8px}
+.tbtn:hover{background:rgba(34,211,238,.24)}
+.c-tr{color:var(--mute)}
+.trow.active .c-tr{color:var(--ink)}
+.lbl{display:none}
+.tx{outline:none;border-radius:6px;word-break:break-word}
+.editing .tx{outline:1px dashed var(--card-b);padding:1px 6px;margin:-1px -6px;cursor:text}
+.editing .tx:focus{outline:2px solid var(--a2);background:var(--bg2)}
+mark{background:rgba(255,200,60,.4);color:inherit;border-radius:4px;padding:0 2px}
+.empty{padding:34px;text-align:center;color:var(--mute)}
+
+/* footer */
+footer{margin-top:46px;text-align:center;padding:22px 16px;font-size:14px;color:var(--mute)}
+.credit{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 10px;padding:12px 22px;border-radius:99px;border:1px solid var(--card-b);background:var(--card);backdrop-filter:blur(10px)}
+.credit strong{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;font-size:15.5px}
+footer small{display:block;margin-top:10px;font-size:12px;opacity:.8}
+.toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translate(-50%,140px);background:var(--ink);color:var(--bg);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;transition:.35s;z-index:99;max-width:92vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.banner{margin-bottom:14px;padding:12px 16px;border-radius:14px;background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.35);font-size:13.5px}
+.banner code{font:600 12.5px 'Inter',monospace;background:var(--bg2);padding:2px 8px;border-radius:7px}
+
+/* print-only blocks */
+#pHead,.pfoot{display:none}
+
+/* ════════════ TABLET / MOBILE ════════════ */
+@media(max-width:900px){
+  .opts{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .caps,.dev-badge{display:none}
+}
+@media(max-width:700px){
+  nav{padding-bottom:14px}
+  .steps{grid-template-columns:1fr;gap:8px}
+  .step{display:flex;gap:14px;align-items:center;text-align:left;padding:12px 16px}
+  .step b{margin:0}
+  .btn{width:100%} .field input{height:52px;font-size:14px}
+  .toolbar{position:static;padding:8px;gap:8px}
+  .search{flex:1 1 100%}
+  .tb-grp{width:100%;gap:6px}
+  .tb-grp .seg{flex:1 1 100%} .tb-grp .seg button{flex:1;padding:0 6px}
+  .tb-grp .btn{width:auto;flex:1 1 0;padding:0 8px}
+  .toolbar>.btn,.toolbar>.menu{width:auto;flex:1 1 30%;min-width:0}
+  .toolbar>.menu .btn{width:100%;padding:0 8px}
+  .retr .line .btn{width:auto;flex:none}
+  .retr .line .sel{min-width:0}
+  .thead{display:none}
+  .trow,.tbl.single .trow,.tbl.v-orig .trow,.tbl.v-trans .trow{grid-template-columns:1fr;gap:6px;padding:14px 16px}
+  .lbl{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+  .tbl.v-orig .lbl,.tbl.v-trans .lbl,.tbl.single .lbl{display:none}
+  .menu .btn{width:100%}
+  .menu-list{position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));top:auto;min-width:0;border-radius:18px;padding:12px}
+  .errcard{flex-direction:column}
+  .drop{padding:24px 12px}
+}
+@media(max-width:480px){.opts{grid-template-columns:1fr}.tabs button{font-size:13.5px}.seg button{padding:0 10px}}
+
+/* ════════════ PRINT / PDF ════════════ */
+@media print{
+  @page{size:A4;margin:14mm 13mm 18mm;@bottom-center{content:"Page " counter(page);font-size:9px;color:#888}}
+  html,body{background:#fff!important;color:#111!important;min-height:0}
+  .bg,nav,.hero,.panel,.steps,.toolbar,footer,.toast,.prog,.errcard,.side,.banner,.hist{display:none!important}
+  .wrap{max-width:none;padding:0}
+  #out{display:block!important;margin:0;animation:none}
+  .grid{display:block}
+  .glass{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;border-radius:0}
+  #pHead{display:block;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #7c5cff}
+  #pHead h1{font-size:21px;color:#111;letter-spacing:0;line-height:1.35;background:none;-webkit-text-fill-color:initial}
+  #pHead p{font-size:11px;color:#666;margin:3px 0 0;line-height:1.5}
+  #pHead .by{color:#7c5cff;font-weight:700}
+  .tbl{font-size:12.5px!important}
+  .thead{color:#777;border-color:#ddd;padding:6px 4px;grid-template-columns:62px 1fr 1fr}
+  .trow{grid-template-columns:62px 1fr 1fr;padding:6px 4px;border-color:#eee;break-inside:avoid;gap:12px;background:none!important}
+  .tbl.single .thead,.tbl.single .trow,.tbl.v-orig .thead,.tbl.v-orig .trow,.tbl.v-trans .thead,.tbl.v-trans .trow{grid-template-columns:62px 1fr}
+  .trow::before{display:none}
+  .tbtn{background:none;color:#555;padding:0;font-size:12px}
+  .c-tr{color:#111}.lbl{display:none!important}
+  mark{background:none}
+  .pfoot{display:block;position:fixed;bottom:0;left:0;right:0;text-align:center;font-size:10px;color:#888;border-top:1px solid #ddd;padding-top:4px}
+}
+</style>
+</head>
+<body>
+<div class="bg"><i></i><i></i><i></i></div>
+
+<div class="wrap">
+  <nav>
+    <a class="logo" href="./" aria-label="SubtitlePro"><b>▶</b><span>Subtitle<em>Pro</em></span></a>
+    <div class="nav-sp"></div>
+    <div class="caps" id="caps"></div>
+    <div class="dev-badge">✨ by <strong>Md Ismail Hossain Nahin</strong></div>
+    <button class="icon-btn" id="theme" aria-label="Theme পরিবর্তন">🌙</button>
+  </nav>
+
+  <div class="banner" id="offline" hidden>⚠️ Server-এর সাথে যোগাযোগ হচ্ছে না। Terminal-এ <code>python app.py</code> চালিয়ে <code>http://localhost:5000</code> খুলুন।</div>
+
+  <section class="hero">
+    <div class="pill">Free • Fast • AI Subtitle • বাংলা অনুবাদ</div>
+    <h1>যেকোনো Video-র <em>Subtitle</em><br>এক ক্লিকে — বাংলায়</h1>
+    <p>YouTube link বা নিজের Audio/Video file দিন। Subtitle না থাকলে AI নিজেই বানিয়ে দেবে, আর অন্য ভাষা হলে ঠিকঠাক বাংলায় অনুবাদ করবে।</p>
+    <div class="feat"><span>📝 YouTube Subtitle</span><span>🎙️ AI Generate</span><span>🌐 বাংলা অনুবাদ</span><span>📄 PDF · SRT · VTT</span><span>📱 Mobile + PC</span></div>
+  </section>
+
+  <section class="glass panel">
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="on" data-t="link" role="tab">🔗 YouTube Link</button>
+      <button data-t="file" role="tab">📁 Audio / Video File</button>
+    </div>
+
+    <!-- LINK -->
+    <div id="tabLink">
+      <div class="urlbox">
+        <div class="field">
+          <span class="ico">🔗</span>
+          <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://youtube.com/watch?v=..." aria-label="YouTube link">
+          <button class="paste" id="paste" type="button">Paste</button>
+        </div>
+        <button class="btn" id="go"><span id="goTxt">✨ Generate</span></button>
+      </div>
+      <div class="row2">
+        <label class="t">Subtitle উৎস:</label>
+        <div class="seg" id="srcSeg">
+          <button data-v="captions" class="on">📝 YouTube Subtitle</button>
+          <button data-v="ai">🎙️ AI Generate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILE -->
+    <div id="tabFile" hidden>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="audio/*,video/*,.mp3,.wav,.m4a,.mp4,.mkv,.webm,.ogg,.flac,.aac,.mov">
+        <b>🎬</b>
+        <h3>এখানে File Drop করুন বা ক্লিক করুন</h3>
+        <p>MP3 · WAV · M4A · MP4 · MKV · WEBM · MOV …</p>
+      </label>
+      <div class="fileinfo" id="fileInfo" hidden>
+        <span id="fileName"></span>
+        <button class="btn ghost sm" id="fileClear" type="button">✕ সরান</button>
+      </div>
+      <div class="row2"><button class="btn alt" id="goFile"><span id="goFileTxt">🎙️ AI দিয়ে Subtitle বানান</span></button></div>
+    </div>
+
+    <div class="opts">
+      <div class="opt"><label for="lang">কথার ভাষা (Source)</label><select id="lang"></select></div>
+      <div class="opt"><label for="tr">অনুবাদের ভাষা</label><select id="tr"></select></div>
+      <div class="opt"><label for="step">প্রতি Row (সেকেন্ড)</label>
+        <select id="step"><option>3</option><option selected>5</option><option>10</option><option>15</option><option>30</option></select></div>
+      <div class="opt" id="modelBox" hidden><label for="model">AI Model</label>
+        <select id="model">
+          <option value="tiny">Tiny — অতি দ্রুত</option>
+          <option value="base" selected>Base — দ্রুত</option>
+          <option value="small">Small — ভালো (বাংলার জন্য সুপারিশ)</option>
+          <option value="medium">Medium — সেরা, ধীর</option>
+        </select></div>
+    </div>
+    <div class="hint info" id="aiNote" hidden>💡 বাংলা কথার জন্য <b>Small</b> বা <b>Medium</b> Model বেছে নিন — সঠিকতা অনেক বেশি। বড় Model প্রথমবার ডাউনলোড হতে সময় নেয়।</div>
+    <div class="hint" id="aiHint" hidden>⚠️ AI Subtitle চালু করতে Terminal-এ লিখুন: <code>pip install faster-whisper yt-dlp</code> তারপর Server আবার চালান।</div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="hist" id="hist" hidden></div>
+  </section>
+
+  <section class="glass prog" id="prog" hidden>
+    <div class="prog-top">
+      <div class="spin"></div>
+      <div><b id="pMsg">শুরু হচ্ছে...</b><small id="pSub"></small></div>
+      <button class="btn ghost sm" id="pCancel" style="width:auto">✕ বাতিল</button>
+    </div>
+    <div class="bar"><i id="pBar"></i></div>
+    <div class="prog-meta"><span id="pPct">0%</span><span id="pTime">0s</span></div>
+  </section>
+
+  <section class="glass errcard" id="err" hidden>
+    <div class="err-ico">😕</div>
+    <div class="err-body"><h3 id="errT">সমস্যা হয়েছে</h3><p id="errM"></p><div class="err-actions" id="errA"></div></div>
+  </section>
+
+  <section class="steps" id="steps">
+    <div class="glass step"><b>🔗</b><div><h3>Link / File দিন</h3><p>YouTube বা নিজের ফাইল</p></div></div>
+    <div class="glass step"><b>🎙️</b><div><h3>Subtitle পান</h3><p>নেই? AI বানিয়ে দেবে</p></div></div>
+    <div class="glass step"><b>🌐</b><div><h3>বাংলা অনুবাদ</h3><p>অন্য ভাষা → বাংলা</p></div></div>
+    <div class="glass step"><b>📄</b><div><h3>Download</h3><p>PDF, SRT, VTT, TXT, CSV</p></div></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="out" hidden>
+    <div id="pHead"><h1 id="pTitle"></h1><p id="pMeta"></p><p>Designed &amp; Developed by <span class="by">Md Ismail Hossain Nahin</span></p></div>
+    <div class="grid">
+      <aside class="side">
+        <div class="glass pcard">
+          <div class="pbox" id="pbox"></div>
+          <div class="pinfo">
+            <h2 id="title"></h2>
+            <div class="chips" id="chips"></div>
+            <div class="retr">
+              <label for="reTarget">অন্য ভাষায় অনুবাদ করুন</label>
+              <div class="line"><select class="sel" id="reTarget"></select><button class="btn ghost sm" id="reGo">🌐 অনুবাদ</button></div>
+              <div class="mini" id="mini" hidden><small id="miniMsg"></small><div class="bar"><i id="miniBar"></i></div></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <div class="glass toolbar" id="toolbar">
+          <div class="search"><span>🔍</span><input id="q" placeholder="Subtitle-এ খুঁজুন..." aria-label="Search"></div>
+          <div class="tb-grp">
+            <div class="seg sm" id="viewSeg">
+              <button data-v="both" class="on">দুটোই</button><button data-v="orig">মূল</button><button data-v="trans">অনুবাদ</button>
+            </div>
+            <button class="btn ghost sm" id="fsDn" aria-label="লেখা ছোট">A−</button>
+            <button class="btn ghost sm" id="fsUp" aria-label="লেখা বড়">A+</button>
+            <button class="btn ghost sm tgl" id="editBtn" title="Subtitle এডিট করুন">✏️ Edit</button>
+            <button class="btn ghost sm tgl on" id="followBtn" title="ভিডিও চলার সাথে সাথে স্ক্রল">🎯 Follow</button>
+          </div>
+          <button class="btn pdf" id="pdf">⬇ PDF</button>
+          <div class="menu" id="menu">
+            <button class="btn ghost" id="menuBtn" aria-haspopup="true">📦 Export ▾</button>
+            <div class="menu-list" id="menuList">
+              <button data-x="srt">🎞️ SRT <small>Video player</small></button>
+              <button data-x="vtt">🌐 VTT <small>Web / YouTube</small></button>
+              <button data-x="txt">📝 TXT <small>Time সহ</small></button>
+              <button data-x="csv">📊 CSV <small>Excel</small></button>
+              <button data-x="json">🧩 JSON <small>Developer</small></button>
+              <div class="mrow"><label for="xc">Export-এ কোন লেখা থাকবে?</label>
+                <select class="sel" id="xc"><option value="both">মূল + অনুবাদ</option><option value="orig">শুধু মূল</option><option value="trans">শুধু অনুবাদ</option></select></div>
+            </div>
+          </div>
+          <button class="btn ghost" id="copy">📋 Copy</button>
+        </div>
+
+        <div class="glass tbl" id="tbl">
+          <div class="thead"><div>Time</div><div id="thOr">Subtitle</div><div id="thTr">অনুবাদ</div></div>
+          <div id="rows"></div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <footer>
+    <div class="credit">✨ Designed &amp; Developed by <strong>Md Ismail Hossain Nahin</strong></div>
+    <small>SubtitlePro • © <span id="yr"></span> • সব অধিকার সংরক্ষিত</small>
+  </footer>
+</div>
+
+<div class="pfoot">Generated with SubtitlePro • Designed &amp; Developed by Md Ismail Hossain Nahin</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* SubtitlePro — Designed & Developed by Md Ismail Hossain Nahin */
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const LANGS=[['bn','বাংলা'],['en','English'],['hi','हिन्दी'],['ar','العربية'],['ur','اردو'],['es','Español'],['fr','Français'],['de','Deutsch'],['ja','日本語'],['ko','한국어'],['zh-CN','中文'],['ru','Русский'],['tr','Türkçe'],['id','Indonesia'],['ms','Melayu'],['ta','தமிழ்'],['pt','Português'],['it','Italiano'],['ne','नेपाली'],['fa','فارسی']];
+const LNAME=Object.fromEntries(LANGS);
+console.log('%cSubtitlePro %c• Designed & Developed by Md Ismail Hossain Nahin','font-weight:800;color:#7c5cff','color:#ff4d6d');
+
+let CAPS={translate:true,ai:false,ytdlp:false,max_upload_mb:1024,max_ai_minutes:120};
+let DATA=null, HAS_TR=false, TAB='link', SRC='captions', FILE=null, LOCAL_URL=null;
+let LAST=null, CUR=null, PLAYER=null, VIEW='both', FS=1, EDIT=false, FOLLOW=true, ACTIVE=-1;
+
+/* ───────── theme ───────── */
+const root=document.documentElement;
+function setTheme(t){root.dataset.theme=t;$('theme').textContent=t==='dark'?'🌙':'☀️';
+  document.querySelector('meta[name=theme-color]').content=t==='dark'?'#0a0c14':'#f3f4fb';store.set('sp_theme',t)}
+setTheme(store.get('sp_theme',matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
+$('theme').onclick=()=>setTheme(root.dataset.theme==='dark'?'light':'dark');
+$('yr').textContent=new Date().getFullYear();
+
+/* ───────── helpers ───────── */
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400)}
+function status(m,c=''){const s=$('status');s.className='status '+c;s.textContent=m}
+const fmtT=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`:`${m}:${String(x).padStart(2,'0')}`};
+const fmtSize=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+function fillSelect(sel,list,def,extra){sel.innerHTML=(extra||'')+list.map(([v,n])=>`<option value="${v}">${esc(n)}</option>`).join('');if(def!==undefined)sel.value=def}
+fillSelect($('lang'),LANGS,'', '<option value="">Auto (ভিডিও-র ভাষা)</option>');
+fillSelect($('tr'),LANGS,'bn');$('tr').insertAdjacentHTML('beforeend','<option value="">অনুবাদ ছাড়া</option>');
+fillSelect($('reTarget'),LANGS,'bn');
+$('lang').value='';$('tr').value=store.get('sp_tr','bn');
+$('tr').onchange=()=>store.set('sp_tr',$('tr').value);
+
+/* ───────── capabilities ───────── */
+async function loadCaps(){
+  try{
+    const r=await fetch('/api/health');if(!r.ok)throw 0;CAPS=await r.json();
+    $('caps').innerHTML=`<span class="cap ${CAPS.translate?'on':'off'}">🌐 Translate ${CAPS.translate?'✓':'✗'}</span><span class="cap ${CAPS.ai&&CAPS.ytdlp?'on':'off'}">🎙️ AI ${CAPS.ai&&CAPS.ytdlp?'✓':'✗'}</span>`;
+  }catch(e){$('offline').hidden=false}
+  updateUI();
+}
+function updateUI(){
+  const needAI=TAB==='file'||SRC==='ai';
+  $('modelBox').hidden=!needAI;$('aiNote').hidden=!needAI;
+  const aiOK=CAPS.ai&&(CAPS.ytdlp||TAB==='file');
+  $('aiHint').hidden=!(needAI&&!aiOK);
+}
+
+/* ───────── tabs / source ───────── */
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;TAB=b.dataset.t;
+  [...$('tabs').children].forEach(x=>x.classList.toggle('on',x===b));
+  $('tabLink').hidden=TAB!=='link';$('tabFile').hidden=TAB!=='file';updateUI()};
+$('srcSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;SRC=b.dataset.v;
+  [...$('srcSeg').children].forEach(x=>x.classList.toggle('on',x===b));
+  $('goTxt').textContent=SRC==='ai'?'🎙️ AI Generate':'✨ Generate';updateUI()};
+
+/* ───────── url helpers + history ───────── */
+$('paste').onclick=async()=>{try{$('url').value=await navigator.clipboard.readText();$('url').focus()}catch(e){toast('Paste করতে Ctrl+V / Long-press দিন')}};
+$('url').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+function histGet(){try{return JSON.parse(store.get('sp_hist','[]'))}catch(e){return[]}}
+function histAdd(url,title){let h=histGet().filter(x=>x.url!==url);h.unshift({url,title:title||url});store.set('sp_hist',JSON.stringify(h.slice(0,6)));histDraw()}
+function histDraw(){const h=histGet(),b=$('hist');b.hidden=!h.length;
+  b.innerHTML='<small>সাম্প্রতিক:</small>'+h.map((x,i)=>`<button data-i="${i}" title="${esc(x.title)}">${esc(x.title)}</button>`).join('')+'<button data-clear="1">🗑 মুছুন</button>'}
+$('hist').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.clear){store.set('sp_hist','[]');histDraw();return}
+  const x=histGet()[+b.dataset.i];if(x){TAB!=='link'&&$('tabs').children[0].click();$('url').value=x.url;$('url').focus()}};
+histDraw();
+
+/* ───────── file picker ───────── */
+const drop=$('drop');
+function setFile(f){
+  if(!f)return;
+  if(f.size>CAPS.max_upload_mb*1048576){toast(`ফাইল অনেক বড় (সর্বোচ্চ ${CAPS.max_upload_mb} MB)`);return}
+  FILE=f;$('fileName').textContent=`🎬 ${f.name} • ${fmtSize(f.size)}`;$('fileInfo').hidden=false;status('')}
+$('file').onchange=e=>setFile(e.target.files[0]);
+$('fileClear').onclick=()=>{FILE=null;$('file').value='';$('fileInfo').hidden=true};
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over')}));
+drop.addEventListener('drop',e=>setFile(e.dataTransfer.files[0]));
+
+/* ═════════════ JOB RUNNER ═════════════ */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function postJSON(url,body){
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let d={};try{d=await r.json()}catch(e){}
+  if(!r.ok&&r.status!==202){const er=new Error(d.error||'Server error ('+r.status+')');er.code=d.code;throw er}
+  return d;
+}
+function postFile(url,form,onUp){
+  return new Promise((res,rej)=>{
+    const x=new XMLHttpRequest();x.open('POST',url);
+    x.upload.onprogress=e=>{if(e.lengthComputable)onUp(e.loaded/e.total)};
+    x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch(e){}
+      if(x.status===202||x.status===200)res(d);else{const er=new Error(d.error||'Upload ব্যর্থ ('+x.status+')');er.code=d.code;rej(er)}};
+    x.onerror=()=>rej(new Error('Server-এর সাথে যোগাযোগ হচ্ছে না'));
+    x.send(form);
+  });
+}
+async function pollJob(id,onProg){
+  let fails=0;
+  for(;;){
+    await sleep(700);
+    let j;
+    try{const r=await fetch('/api/job/'+id);j=await r.json();if(!r.ok){const er=new Error(j.error||'Job হারিয়ে গেছে');er.code=j.code;throw er}fails=0}
+    catch(e){if(e.code)throw e;if(++fails>6){const er=new Error('Server-এর সাথে যোগাযোগ বিচ্ছিন্ন হয়েছে');er.code='offline';throw er}continue}
+    onProg&&onProg(j);
+    if(j.status==='done')return j.result;
+    if(j.status==='error'){const er=new Error(j.error);er.code=j.code;throw er}
+    if(j.status==='cancelled'){const er=new Error('বাতিল করা হয়েছে');er.code='cancelled';throw er}
+  }
+}
+
+/* main progress UI */
+let tick=null,t0=0;
+function progShow(on){
+  $('prog').hidden=!on;clearInterval(tick);
+  if(on){t0=Date.now();progSet(0,'শুরু হচ্ছে...','');tick=setInterval(()=>{$('pTime').textContent=Math.floor((Date.now()-t0)/1000)+'s'},500)}
+}
+function progSet(p,msg,sub){$('pBar').style.width=Math.max(2,p)+'%';$('pPct').textContent=Math.round(p)+'%';if(msg)$('pMsg').textContent=msg;$('pSub').textContent=sub||''}
+const STAGE={fetch:'Subtitle সংগ্রহ',download:'অডিও ডাউনলোড',model:'AI Model প্রস্তুত',transcribe:'AI Subtitle লিখছে',translate:'অনুবাদ'};
+$('pCancel').onclick=async()=>{if(CUR){try{await fetch(`/api/job/${CUR}/cancel`,{method:'POST'})}catch(e){}}progShow(false);status('বাতিল করা হয়েছে');busy(false)};
+
+function busy(b){$('go').disabled=b;$('goFile').disabled=b;$('reGo').disabled=b}
+
+function showError(msg,code){
+  $('err').hidden=false;
+  $('errT').textContent=code==='no_captions'?'এই ভিডিওতে Subtitle নেই':'সমস্যা হয়েছে';
+  $('errM').textContent=msg;
+  const a=$('errA');a.innerHTML='';
+  if((code==='no_captions'||code==='blocked')&&LAST&&LAST.kind==='link'){
+    const b=document.createElement('button');b.className='btn alt sm';b.textContent='🎙️ AI দিয়ে Subtitle বানান';
+    b.onclick=()=>{if(SRC!=='ai')$('srcSeg').children[1].click();generate('ai')};
+    a.appendChild(b);
+    if(!(CAPS.ai&&CAPS.ytdlp)){const h=document.createElement('span');h.className='chip';h.innerHTML='আগে Install করুন: <b>pip install faster-whisper yt-dlp</b>';a.appendChild(h)}
+  }
+  if(LAST){const r=document.createElement('button');r.className='btn ghost sm';r.textContent='🔄 আবার চেষ্টা';r.onclick=()=>LAST.retry();a.appendChild(r)}
+  $('err').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function launch(starter,retry){
+  LAST={kind:TAB,retry};
+  $('err').hidden=true;$('out').hidden=true;$('steps').hidden=true;status('');busy(true);progShow(true);
+  try{
+    const job=await starter(p=>progSet(p*30,'ফাইল আপলোড হচ্ছে...',Math.round(p*100)+'%'));
+    CUR=job.id;
+    const result=await pollJob(job.id,j=>progSet(j.progress,j.message,STAGE[j.stage]||''));
+    progSet(100,'সম্পন্ন!','');await sleep(250);progShow(false);
+    DATA=result;if(result.source==='youtube'){histAdd(`https://youtu.be/${result.video_id}`,result.title)}
+    render(result);status(`✔ ${result.rows.length} টি row তৈরি হয়েছে`,'ok');
+    setTimeout(()=>$('out').scrollIntoView({behavior:'smooth',block:'start'}),120);
+  }catch(e){
+    progShow(false);$('steps').hidden=false;
+    if(e.code==='cancelled')status('বাতিল করা হয়েছে');else showError(e.message,e.code);
+  }finally{busy(false);CUR=null}
+}
+
+/* start: link */
+function generate(mode){
+  const url=$('url').value.trim();
+  if(!url){status('আগে YouTube link দিন','err');$('url').focus();return}
+  mode=mode||SRC;
+  const body={url,mode,lang:$('lang').value,translate:$('tr').value,step:+$('step').value,model:$('model').value};
+  LOCAL_URL=null;
+  launch(()=>postJSON('/api/start',body),()=>generate(mode));
+}
+$('go').onclick=()=>generate();
+
+/* start: file */
+$('goFile').onclick=()=>{
+  if(!FILE){status('আগে একটি Audio/Video ফাইল বেছে নিন','err');return}
+  const f=FILE;
+  const run=()=>{
+    const fd=new FormData();fd.append('file',f);fd.append('lang',$('lang').value);fd.append('translate',$('tr').value);fd.append('step',$('step').value);fd.append('model',$('model').value);
+    if(LOCAL_URL)URL.revokeObjectURL(LOCAL_URL);LOCAL_URL=URL.createObjectURL(f);
+    launch(onUp=>postFile('/api/upload',fd,onUp),run);
+  };run();
+};
+
+/* ═════════════ RENDER ═════════════ */
+function render(d){
+  HAS_TR=d.rows.some(r=>r.translation);ACTIVE=-1;EDIT=false;$('editBtn').classList.remove('on');$('tbl').classList.remove('editing');
+  $('title').textContent=d.title;$('pTitle').textContent=d.title;
+  VIEW=HAS_TR?'both':'orig';setView(VIEW);
+  $('viewSeg').hidden=!HAS_TR;
+  const words=d.rows.reduce((a,r)=>a+r.text.split(/\s+/).length,0);
+  const last=d.rows.length?fmtT(d.rows[d.rows.length-1].end):'0:00';
+  const by=d.generated_by==='captions'?(d.auto_generated?'🤖 YouTube Auto':'✍️ Manual'):'🎙️ AI ('+d.generated_by.replace('whisper-','')+')';
+  $('chips').innerHTML=`<span class="chip">🌐 <b>${esc(d.language)}</b></span><span class="chip">${by}</span><span class="chip">📄 <b>${d.rows.length}</b> row</span><span class="chip">🔤 <b>${words}</b> শব্দ</span><span class="chip">⏱ <b>${last}</b></span>`+
+    (d.translated?`<span class="chip">🌐→ <b>${esc(LNAME[d.target]||d.target)}</b> • ${esc(d.engine||'')}</span>`:'');
+  $('pMeta').textContent=`${d.source==='youtube'?'Source: youtube.com/watch?v='+d.video_id:'Source: Uploaded file'} • Language: ${d.language} • ${d.generated_by==='captions'?(d.auto_generated?'Auto captions':'Manual captions'):'AI generated'} • ${new Date().toLocaleDateString()}`;
+  $('thTr').textContent='অনুবাদ'+(d.target?` (${LNAME[d.target]||d.target})`:'');
+  $('reTarget').value=d.target||'bn';
+  $('q').value='';draw('');mountPlayer(d);$('out').hidden=false;
+}
+
+function hl(s,t){
+  if(!t)return esc(s);
+  const re=new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');let out='',last=0,m;
+  while((m=re.exec(s))){out+=esc(s.slice(last,m.index))+'<mark>'+esc(m[0])+'</mark>';last=m.index+m[0].length;if(!m[0].length)re.lastIndex++}
+  return out+esc(s.slice(last));
+}
+function draw(term){
+  if(!DATA)return;
+  const t=EDIT?'':term.trim().toLowerCase();
+  const tbl=$('tbl');tbl.classList.toggle('single',!HAS_TR);
+  let html='',n=0;
+  DATA.rows.forEach((r,i)=>{
+    if(t&&!r.text.toLowerCase().includes(t)&&!(r.translation||'').toLowerCase().includes(t))return;
+    n++;
+    const ce=EDIT?' contenteditable="true" spellcheck="false"':'';
+    html+=`<div class="trow" data-i="${i}"><div class="time"><button class="tbtn" data-s="${r.sec}" title="এই জায়গা থেকে চালান">${r.time}</button></div>`+
+      `<div class="c-or"><span class="lbl">Subtitle</span><span class="tx" data-f="text"${ce}>${hl(r.text,t)}</span></div>`+
+      (HAS_TR?`<div class="c-tr"><span class="lbl">অনুবাদ</span><span class="tx" data-f="translation"${ce}>${hl(r.translation||'',t)}</span></div>`:'')+`</div>`;
+  });
+  $('rows').innerHTML=n?html:'<div class="empty">কিছু পাওয়া যায়নি 😕</div>';
+  ACTIVE=-1;
+}
+let qT;$('q').oninput=e=>{clearTimeout(qT);qT=setTimeout(()=>draw(e.target.value),120)};
+
+/* row interactions */
+$('rows').addEventListener('click',e=>{
+  const b=e.target.closest('.tbtn');if(!b)return;
+  const s=+b.dataset.s;
+  if(PLAYER)PLAYER.seek(s);
+  else if(DATA.source==='youtube')window.open(`https://youtu.be/${DATA.video_id}?t=${Math.floor(s)}`,'_blank','noopener');
+});
+$('rows').addEventListener('input',e=>{
+  const sp=e.target.closest('[data-f]');if(!sp)return;
+  const row=sp.closest('.trow');DATA.rows[+row.dataset.i][sp.dataset.f]=sp.innerText.replace(/\n+/g,' ').trim();
+});
+
+/* view / font / edit / follow */
+function setView(v){VIEW=v;const t=$('tbl');t.classList.toggle('v-orig',v==='orig');t.classList.toggle('v-trans',v==='trans');
+  [...$('viewSeg').children].forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+$('viewSeg').onclick=e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v)};
+function setFS(v){FS=Math.min(1.6,Math.max(.8,v));$('tbl').style.setProperty('--fs',FS)}
+$('fsUp').onclick=()=>setFS(FS+.1);$('fsDn').onclick=()=>setFS(FS-.1);
+$('editBtn').onclick=()=>{EDIT=!EDIT;$('editBtn').classList.toggle('on',EDIT);$('tbl').classList.toggle('editing',EDIT);
+  if(EDIT){$('q').value=''}draw($('q').value);toast(EDIT?'✏️ Edit চালু — যেকোনো লেখায় ক্লিক করে ঠিক করুন':'✔ Edit বন্ধ')};
+$('followBtn').onclick=()=>{FOLLOW=!FOLLOW;$('followBtn').classList.toggle('on',FOLLOW)};
+
+/* ═════════════ PLAYER (YouTube + local file) ═════════════ */
+let ytP=null;
+function loadYT(){
+  if(window.YT&&YT.Player)return Promise.resolve();
+  if(ytP)return ytP;
+  ytP=new Promise((res,rej)=>{window.onYouTubeIframeAPIReady=res;const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>{ytP=null;rej()};document.head.appendChild(s)});
+  return ytP;
+}
+function mountPlayer(d){
+  const box=$('pbox');
+  if(PLAYER&&PLAYER.destroy){try{PLAYER.destroy()}catch(e){}}
+  PLAYER=null;box.innerHTML='';
+  if(d.source==='youtube'&&d.video_id){
+    box.innerHTML='<div id="ytp"></div>';
+    loadYT().then(()=>{
+      if(!document.getElementById('ytp'))return;
+      const p=new YT.Player('ytp',{videoId:d.video_id,playerVars:{rel:0,playsinline:1,modestbranding:1},
+        events:{onReady:()=>{PLAYER={seek:t=>{p.seekTo(t,true);p.playVideo()},time:()=>p.getCurrentTime(),playing:()=>p.getPlayerState()===1,destroy:()=>{try{p.destroy()}catch(e){}}}}}});
+    }).catch(()=>{box.innerHTML=`<a class="nofile" style="color:#fff" href="https://youtu.be/${esc(d.video_id)}" target="_blank" rel="noopener">▶ YouTube-এ ভিডিও খুলুন</a>`});
+  }else if(d.source==='file'&&LOCAL_URL){
+    const v=document.createElement('video');v.src=LOCAL_URL;v.controls=true;v.playsInline=true;box.appendChild(v);
+    PLAYER={seek:t=>{v.currentTime=t;v.play()},time:()=>v.currentTime,playing:()=>!v.paused,destroy:()=>{v.pause()}};
+  }else{box.innerHTML='<div class="nofile">🎬 Player নেই<br>(ফাইল আবার বেছে নিলে Player চালু হবে)</div>'}
+}
+function findActive(t){const r=DATA.rows;let lo=0,hi=r.length-1,a=-1;while(lo<=hi){const m=(lo+hi)>>1;if(r[m].sec<=t+.2){a=m;lo=m+1}else hi=m-1}return a}
+setInterval(()=>{
+  if(!PLAYER||!DATA||$('out').hidden)return;
+  let t;try{t=PLAYER.time()}catch(e){return}
+  if(typeof t!=='number'||isNaN(t))return;
+  const i=findActive(t);if(i===ACTIVE)return;ACTIVE=i;
+  const old=$('rows').querySelector('.trow.active');old&&old.classList.remove('active');
+  const el=i>=0?$('rows').querySelector(`.trow[data-i="${i}"]`):null;
+  if(el){el.classList.add('active');
+    if(FOLLOW&&PLAYER.playing()&&!EDIT){const rc=el.getBoundingClientRect(),tb=$('toolbar').getBoundingClientRect().bottom;
+      if(rc.top<tb+8||rc.bottom>innerHeight-20)window.scrollTo({top:scrollY+rc.top-tb-90,behavior:'smooth'})}}
+},350);
+
+/* ═════════════ RE-TRANSLATE ═════════════ */
+$('reGo').onclick=async()=>{
+  if(!DATA)return;const target=$('reTarget').value;
+  busy(true);$('mini').hidden=false;$('miniMsg').textContent='অনুবাদ শুরু হচ্ছে...';$('miniBar').style.width='3%';
+  try{
+    const job=await postJSON('/api/translate',{texts:DATA.rows.map(r=>r.text),target});
+    const res=await pollJob(job.id,j=>{$('miniMsg').textContent=j.message;$('miniBar').style.width=Math.max(3,j.progress)+'%'});
+    DATA.rows.forEach((r,i)=>r.translation=res.translations[i]||'');
+    DATA.target=target;DATA.translated=true;DATA.engine=res.engine;
+    const keep=EDIT;render(DATA);if(keep){}
+    toast('✔ '+(LNAME[target]||target)+' অনুবাদ সম্পন্ন');
+  }catch(e){toast(e.message||'অনুবাদ করা যায়নি')}
+  finally{$('mini').hidden=true;busy(false)}
+};
+
+/* ═════════════ EXPORT ═════════════ */
+const pad=(n,l=2)=>String(n).padStart(l,'0');
+function ts(sec,comma){const ms=Math.round(sec*1000),h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000),x=ms%1000;return `${pad(h)}:${pad(m)}:${pad(s)}${comma?',':'.'}${pad(x,3)}`}
+function cue(r,mode){const a=r.text,b=r.translation;if(mode==='orig'||!b)return a;if(mode==='trans')return b;return a+'\n'+b}
+function endOf(i){const r=DATA.rows[i],n=DATA.rows[i+1];let e=r.end;if(n&&n.sec>r.sec)e=Math.min(e,n.sec);return Math.max(e,r.sec+.5)}
+const fname=ext=>((DATA.title||'subtitle').replace(/[\\/:*?"<>|\n\r]+/g,'').trim().slice(0,60)||'subtitle')+'.'+ext;
+function save(name,text,mime,bom){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bom?'\ufeff'+text:text],{type:mime+';charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function build(kind){
+  const mode=$('xc').value,R=DATA.rows;
+  if(kind==='srt')return R.map((r,i)=>`${i+1}\n${ts(r.sec,1)} --> ${ts(endOf(i),1)}\n${cue(r,mode)}\n`).join('\n');
+  if(kind==='vtt')return 'WEBVTT\n\nNOTE Generated by SubtitlePro — Designed & Developed by Md Ismail Hossain Nahin\n\n'+R.map((r,i)=>`${ts(r.sec)} --> ${ts(endOf(i))}\n${cue(r,mode)}\n`).join('\n');
+  if(kind==='txt')return DATA.title+'\n'+'='.repeat(Math.min(60,DATA.title.length))+'\n\n'+R.map(r=>`[${r.time}]  ${cue(r,mode).replace('\n','\n         ')}`).join('\n\n')+'\n\n— Generated with SubtitlePro • Designed & Developed by Md Ismail Hossain Nahin\n';
+  if(kind==='csv'){const q=s=>'"'+String(s||'').replace(/"/g,'""')+'"';return 'Time,Start(sec),End(sec),Subtitle,Translation\n'+R.map((r,i)=>[q(r.time),r.sec,endOf(i).toFixed(2),q(r.text),q(r.translation)].join(',')).join('\n')}
+  if(kind==='json')return JSON.stringify({generator:'SubtitlePro',developer:'Md Ismail Hossain Nahin',title:DATA.title,language:DATA.language,target:DATA.target,rows:R},null,2);
+}
+const MIME={srt:'application/x-subrip',vtt:'text/vtt',txt:'text/plain',csv:'text/csv',json:'application/json'};
+$('menuBtn').onclick=e=>{e.stopPropagation();$('menu').classList.toggle('open')};
+$('menuList').onclick=e=>{e.stopPropagation();const b=e.target.closest('button[data-x]');if(!b||!DATA)return;
+  const k=b.dataset.x;save(fname(k),build(k),MIME[k],k==='csv');$('menu').classList.remove('open');toast('⬇ '+k.toUpperCase()+' Download হচ্ছে')};
+document.addEventListener('click',()=>$('menu').classList.remove('open'));
+$('xc').value='both';
+
+$('copy').onclick=async()=>{
+  if(!DATA)return;const txt=build('txt');
+  try{await navigator.clipboard.writeText(txt)}catch(e){const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}
+  toast('✔ Copy হয়েছে');
+};
+$('pdf').onclick=()=>{
+  if(!DATA)return;$('q').value='';draw('');
+  const old=document.title;document.title=(DATA.title||'Subtitle')+' — SubtitlePro';
+  const go=()=>{window.print();setTimeout(()=>document.title=old,500)};
+  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>setTimeout(go,120));
+};
+
+/* shortcuts */
+document.addEventListener('keydown',e=>{
+  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable;
+  if(e.key==='/'&&!typing&&DATA&&!$('out').hidden){e.preventDefault();$('q').focus()}
+  if(e.key==='Escape'){$('menu').classList.remove('open');if(document.activeElement===$('q')){$('q').blur()}}
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){TAB==='link'?$('go').click():$('goFile').click()}
+});
+
+loadCaps();
+</script>
+</body>
+</html>
